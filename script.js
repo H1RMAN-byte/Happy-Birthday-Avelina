@@ -213,7 +213,7 @@ function typeMessage() {
   typedEl.textContent = '';
   typedEl.classList.remove('done');
   let i = 0;
-  const speed = 20; // мс на символ — уменьши, если хочешь быстрее
+  const speed = 35; // мс на символ — уменьши, если хочешь быстрее
 
   (function tick() {
     if (i < CONGRATS_TEXT.length) {
