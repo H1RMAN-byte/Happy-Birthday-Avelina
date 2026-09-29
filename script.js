@@ -29,7 +29,7 @@ const MINI_PHOTOS = [
   'photos/mini10.jpg',
 ];
 
-const HEART_DOTS = 90;
+const HEART_DOTS = 40;
 
 const DOT_DELAY = 45;
 
@@ -168,7 +168,7 @@ function startMusic() {
     soundBtn.classList.remove('hidden');
     soundBtn.textContent = '🔊';
   }).catch(() => {
-    // Если браузер не дал запустить (например, нет файла) — просто игнорируем
+  
   });
 }
 
@@ -182,9 +182,6 @@ soundBtn.addEventListener('click', () => {
   }
 });
 
-/* ============================================================
-   ЭТАП 1 → ЭТАП 2: клик по конверту
-   ============================================================ */
 const envelope = document.getElementById('envelope');
 let opened = false;
 
@@ -194,7 +191,6 @@ envelope.addEventListener('click', () => {
   envelope.classList.add('open');
   startMusic();
 
-  // Даём анимации конверта доиграть и переходим
   setTimeout(() => {
     leaveStage('envelope', () => {
       showStage('message');
@@ -203,9 +199,6 @@ envelope.addEventListener('click', () => {
   }, 900);
 });
 
-/* ============================================================
-   ЭТАП 2: печатающийся текст
-   ============================================================ */
 const typedEl = document.getElementById('typedText');
 const toGalleryBtn = document.getElementById('toGallery');
 
@@ -213,7 +206,7 @@ function typeMessage() {
   typedEl.textContent = '';
   typedEl.classList.remove('done');
   let i = 0;
-  const speed = 35; // мс на символ — уменьши, если хочешь быстрее
+  const speed = 35; 
 
   (function tick() {
     if (i < CONGRATS_TEXT.length) {
@@ -233,9 +226,6 @@ toGalleryBtn.addEventListener('click', () => {
   });
 });
 
-/* ============================================================
-   ЭТАП 3: галерея полароидов
-   ============================================================ */
 let galleryBuilt = false;
 let currentPage = 0;
 
@@ -246,7 +236,6 @@ function buildGallery() {
   const book = document.getElementById('book');
   const dotsWrap = document.getElementById('bookDots');
 
-  // Разбиваем фото на страницы по PHOTOS_PER_PAGE
   const pages = [];
   for (let i = 0; i < GALLERY_PHOTOS.length; i += PHOTOS_PER_PAGE) {
     pages.push(GALLERY_PHOTOS.slice(i, i + PHOTOS_PER_PAGE));
@@ -266,12 +255,10 @@ function buildGallery() {
       img.src = p.src;
       img.alt = p.caption;
       img.onerror = () => {
-  // вместо удаления — просто подменяем фон, размеры сохраняются
   img.style.background = 'linear-gradient(135deg,#3a1224,#5a1a33)';
   img.alt = '📷';
-  img.removeAttribute('src');   // чтобы не пытался грузить снова
-  // вставляем эмодзи поверх как отдельный элемент? — нет,
-  // достаточно показать фон, главное — img остаётся в DOM и держит размеры
+  img.removeAttribute('src'); 
+  
 };
 
       const cap = document.createElement('div');
@@ -285,13 +272,11 @@ function buildGallery() {
 
     book.appendChild(page);
 
-    // Точка-индикатор
     const dot = document.createElement('span');
     if (idx === 0) dot.classList.add('on');
     dotsWrap.appendChild(dot);
   });
 
-  // Свайпы и клавиши
   attachBookControls(pages.length);
 }
 
@@ -300,26 +285,23 @@ function attachBookControls(total) {
   const dots = document.querySelectorAll('#bookDots span');
 
   function goTo(idx) {
-  if (idx < 0 || idx >= total) return;   // вышли за пределы — игнорируем
+  if (idx < 0 || idx >= total) return;
   if (idx === currentPage) return;
 
   const allPages = document.querySelectorAll('.book-page');
   const prev = allPages[currentPage];
   const next = allPages[idx];
 
-  // старая страница улетает
   prev.classList.add('flipping');
   prev.classList.remove('active');
   setTimeout(() => prev.classList.remove('flipping'), 700);
 
-  // новая приходит
   setTimeout(() => next.classList.add('active'), 120);
 
   currentPage = idx;
   dots.forEach((d, i) => d.classList.toggle('on', i === idx));
 }
 
-  // Свайп
   let startX = 0, startY = 0, tracking = false;
 
   book.addEventListener('touchstart', (e) => {
@@ -341,7 +323,6 @@ function attachBookControls(total) {
     else goTo(currentPage - 1);
   });
 
-  // Мышь (для ПК)
   let mouseDown = false;
   book.addEventListener('mousedown', (e) => { mouseDown = true; startX = e.clientX; });
   book.addEventListener('mouseup', (e) => {
@@ -356,7 +337,6 @@ function attachBookControls(total) {
     else goTo(currentPage - 1);
   });
 
-  // Клавиши
   document.addEventListener('keydown', (e) => {
     if (!document.getElementById('stageGallery').classList.contains('active')) return;
     if (e.key === 'ArrowRight') {
@@ -366,7 +346,6 @@ function attachBookControls(total) {
     if (e.key === 'ArrowLeft') goTo(currentPage - 1);
   });
 }
-/* Закрытие книжки и переход к сердцу */
 let bookClosing = false;
 
 function closeBook() {
@@ -376,24 +355,18 @@ function closeBook() {
   const book = document.getElementById('book');
   book.classList.add('closing');
 
-  // ждём, пока книга «захлопнется» (1.1s), затем уводим сцену галереи
   setTimeout(() => {
     leaveStage('gallery', () => {
       showStage('heart');
       setTimeout(drawHeart, 400);
-      bookClosing = false;   // сброс для replay
+      bookClosing = false;  
     });
   }, 1100);
 }
-/* ============================================================
-   ЭТАП 4: сердце из мини-фотографий
-   ============================================================ */
 let heartDrawn = false;
 
 function heartPoint(t) {
-  // Параметрическое уравнение сердца
-  // x = 16 sin^3 t
-  // y = 13 cos t − 5 cos 2t − 2 cos 3t − cos 4t
+
   const x = 16 * Math.pow(Math.sin(t), 3);
   const y = 13 * Math.cos(t)
           - 5 * Math.cos(2 * t)
@@ -410,16 +383,14 @@ function drawHeart() {
   const finalText = document.getElementById('finalText');
   finalText.classList.remove('show');
 
-  // Убираем старые мини-фото (если были при replay)
   scene.querySelectorAll('.mini-photo').forEach(n => n.remove());
 
   // Размеры сцены
   const rect = scene.getBoundingClientRect();
-  const scale = Math.min(rect.width, rect.height) / 40; // 40 — примерный размах
+  const scale = Math.min(rect.width, rect.height) / 40; 
   const cx = rect.width / 2;
   const cy = rect.height / 2;
 
-  // Находим границы сердца для центрирования
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
   for (let i = 0; i <= HEART_DOTS; i++) {
     const t = (i / HEART_DOTS) * Math.PI * 2;
@@ -438,23 +409,22 @@ function drawHeart() {
     const p = heartPoint(t);
 
     const px = cx + (p.x - (minX + w / 2)) * fitScale;
-    const py = cy - (p.y - (minY + h / 2)) * fitScale; // минус — ось Y вниз
+    const py = cy - (p.y - (minY + h / 2)) * fitScale; 
 
     const img = document.createElement('img');
     img.className = 'mini-photo';
     img.src = MINI_PHOTOS[i % MINI_PHOTOS.length];
     img.alt = '';
-    img.style.left = (px - 19) + 'px';
-    img.style.top  = (py - 19) + 'px';
+    img.style.left = (px - 38) + 'px';
+    img.style.top  = (py - 38) + 'px';
     img.style.animationDelay = (i * DOT_DELAY) + 'ms';
 
-    // Если мини-фото не найдено — подставим кружок с сердечком
     img.onerror = () => {
       img.remove();
       const dot = document.createElement('div');
       dot.className = 'mini-photo';
-      dot.style.left = (px - 19) + 'px';
-      dot.style.top  = (py - 19) + 'px';
+      dot.style.left = (px - 38) + 'px';
+      dot.style.top  = (py - 38) + 'px';
       dot.style.background = 'linear-gradient(135deg,#ff5c8a,#e8c66a)';
       dot.style.display = 'flex';
       dot.style.alignItems = 'center';
@@ -469,14 +439,10 @@ function drawHeart() {
     setTimeout(() => img.classList.add('on'), i * DOT_DELAY);
   }
 
-  // Когда контур замкнулся — показываем финальный текст
   const totalTime = HEART_DOTS * DOT_DELAY + 500;
   setTimeout(() => finalText.classList.add('show'), totalTime);
 }
 
-/* ============================================================
-   ПОВТОРИТЬ
-   ============================================================ */
 document.getElementById('replay').addEventListener('click', () => {
   heartDrawn = false;
   bookClosing = false;
