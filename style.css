@@ -1,0 +1,445 @@
+/* ============ БАЗА ============ */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+/* Запрет выделения текста и элементов интерфейса */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;    /* запрет «долгого тапа» на iOS */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Исключение: разрешим выделение в поле с текстом поздравления,
+   если вдруг захочешь дать возможность скопировать его вручную.
+   Если это не нужно — удали этот блок. */
+.typed {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+:root {
+  --bg-1: #14090f;
+  --bg-2: #2a0f1c;
+  --rose: #ff9ec4;
+  --rose-deep: #ff5c8a;
+  --gold: #e8c66a;
+  --text: #f7e9ef;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 30%, var(--bg-2), var(--bg-1) 70%);
+  color: var(--text);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 300;
+}
+
+/* ============ КАНВАС ФОНА ============ */
+#bgCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ============ СЦЕНЫ ============ */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  transform: scale(0.98);
+  z-index: 1;
+  overflow-y: auto;
+}
+
+.stage.active {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.stage.leaving {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+/* ============ ЭТАП 1: КОНВЕРТ ============ */
+.envelope-wrap { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+
+.envelope-hint {
+  font-family: 'Sacramento', cursive;
+  font-size: 34px;
+  color: var(--rose);
+  text-shadow: 0 0 24px rgba(255, 92, 138, 0.5);
+}
+
+.envelope-cta {
+  font-size: 14px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(247, 233, 239, 0.6);
+  animation: ctaPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.envelope {
+  width: 240px;
+  height: 160px;
+  position: relative;
+  cursor: pointer;
+  filter: drop-shadow(0 20px 40px rgba(255, 92, 138, 0.35));
+  animation: floaty 4s ease-in-out infinite;
+  transition: transform 0.6s ease;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+.envelope .body {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, #ff86ae, #d63d6b);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 -6px 20px rgba(0,0,0,0.25);
+}
+
+.envelope .seal {
+  font-size: 44px;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.6));
+  animation: sealBeat 1.6s ease-in-out infinite;
+}
+
+@keyframes sealBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.envelope .flap {
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 0;
+  border-left: 120px solid transparent;
+  border-right: 120px solid transparent;
+  border-top: 82px solid #ff6f9c;
+  border-radius: 6px 6px 0 0;
+  z-index: 3;
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(0.6, -0.2, 0.4, 1.4);
+}
+
+/* при клике конверт открывается */
+.envelope.open .flap {
+  transform: rotateX(180deg);
+}
+.envelope.open {
+  animation: none;
+  transform: translateY(-20px) scale(1.05);
+}
+
+/* ============ ЭТАП 2: ПОЗДРАВЛЕНИЕ ============ */
+.message-card {
+  max-width: 640px;
+  padding: 8px;
+}
+
+.script-title {
+  font-family: 'Sacramento', cursive;
+  font-weight: 400;
+  font-size: 68px;
+  color: var(--rose);
+  line-height: 1;
+  text-shadow: 0 0 30px rgba(255, 92, 138, 0.55);
+  margin-bottom: 24px;
+}
+
+.script-title.small { font-size: 46px; }
+
+.typed {
+  font-size: 18px;
+  line-height: 1.9;
+  min-height: 120px;
+  white-space: pre-wrap;
+  color: #ffe6ef;
+}
+
+.typed::after {
+  content: '|';
+  margin-left: 2px;
+  color: var(--rose-deep);
+  animation: blink 0.9s steps(1) infinite;
+}
+
+.typed.done::after { display: none; }
+
+@keyframes blink { 50% { opacity: 0; } }
+
+/* ============ КНОПКИ ============ */
+.btn {
+  margin-top: 28px;
+  padding: 14px 34px;
+  border-radius: 40px;
+  border: 1.5px solid var(--rose-deep);
+  background: linear-gradient(135deg, rgba(255,92,138,0.18), rgba(232,198,106,0.14));
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.3s;
+  backdrop-filter: blur(6px);
+}
+
+.btn:hover, .btn:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 92, 138, 0.45);
+  background: linear-gradient(135deg, var(--rose-deep), var(--gold));
+  color: #1a0810;
+  outline: none;
+}
+
+.btn.ghost {
+  border-color: rgba(247,233,239,0.35);
+  background: transparent;
+  color: rgba(247,233,239,0.75);
+  font-size: 13px;
+}
+
+.hidden { display: none !important; }
+
+/* ============ ЭТАП 3: ГАЛЕРЕЯ ============ */
+.book {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  height: 420px;
+  perspective: 1600px;
+  margin: 10px 0;
+  transform-style: preserve-3d;
+}
+
+.book-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transform-origin: left center;         /* ← точка вращения — левый край */
+  transform: rotateY(-90deg);            /* ← страница повёрнута «ребром» */
+  transition: transform 0.7s cubic-bezier(0.45, 0, 0.25, 1),
+              opacity 0.6s ease;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.book-page.active {
+  opacity: 1;
+  transform: rotateY(0deg);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+/* когда страница «уходит» — она поворачивается вправо, как перевёрнутая */
+.book-page.flipping {
+  transform: rotateY(90deg);
+  opacity: 0;
+  z-index: 1;
+}
+
+
+
+.polaroid {
+  background: #fffaf6;
+  padding: 12px 12px 42px;
+  border-radius: 4px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+  transform: rotate(var(--rot, 0deg));
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  position: relative;
+  opacity: 0;
+  animation: popIn 0.7s ease forwards;
+
+  width: 260px;
+  height: 300px;
+  flex: 0 0 260px;      /* ключевое — не сжимается, не растягивается */
+  box-sizing: border-box;
+}
+
+.polaroid .caption {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  text-align: center;
+  font-family: 'Sacramento', cursive;
+  font-size: 18px;
+  color: #4a1a2a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.polaroid img {
+  width: 100%;
+  height: 230px;              /* фиксированная высота фото */
+  object-fit: cover;
+  object-position: center top; /* лица обычно сверху — так кадр лучше */
+  display: block;
+  border-radius: 2px;
+  background: #2a0f1c;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) rotate(0deg) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(var(--rot, 0deg)) scale(1);
+  }
+}
+
+/* точки-индикаторы */
+.book-dots {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  justify-content: center;
+}
+
+.book-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 158, 196, 0.3);
+  transition: background 0.3s, transform 0.3s;
+}
+
+.book-dots span.on {
+  background: var(--rose-deep);
+  transform: scale(1.3);
+}
+
+/* Закрытие книги — весь блок сжимается и исчезает */
+.book.closing {
+  animation: bookClose 1.1s ease forwards;
+}
+
+@keyframes bookClose {
+  0%   { transform: scale(1) rotateY(0deg); opacity: 1; }
+  40%  { transform: scale(0.95) rotateY(-8deg); opacity: 1; }
+  100% { transform: scale(0.3) rotateY(-70deg); opacity: 0; }
+}
+
+
+/* ============ ЭТАП 4: СЕРДЦЕ ============ */
+.heart-scene {
+  position: relative;
+  width: min(90vw, 520px);
+  height: min(90vw, 520px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-photo {
+  position: absolute;
+  width: 38px;                
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--rose);
+  box-shadow: 0 0 12px rgba(255, 92, 138, 0.8);
+  opacity: 0;
+  transform: scale(0.3);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.mini-photo.on {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.final-text {
+  font-family: 'Sacramento', cursive;
+  font-size: 44px;
+  color: #fff;
+  text-shadow: 0 0 24px var(--rose-deep), 0 0 60px var(--rose-deep);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 1s ease, transform 1s ease;
+  text-align: center;
+  padding: 8px 10px;
+  margin-top: 24px;
+  pointer-events: none;
+}
+
+.final-text.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============ КНОПКА ЗВУКА ============ */
+.sound-toggle {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(20, 9, 15, 0.6);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  transition: transform 0.25s;
+}
+.sound-toggle:hover { transform: scale(1.08); }
+
+/* ============ МОБИЛЬНАЯ АДАПТАЦИЯ ============ */
+@media (max-width: 600px) {
+  .script-title { font-size: 52px; }
+  .script-title.small { font-size: 38px; }
+  .typed { font-size: 16px; line-height: 1.75; }
+  .envelope { width: 200px; height: 136px; }
+  .envelope .flap {
+    border-left-width: 100px;
+    border-right-width: 100px;
+    border-top-width: 70px;
+  }
+  .envelope-hint { font-size: 28px; }
+  .gallery { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.polaroid { width: 160px; height: 240px; flex: 0 0 160px; }
+.polaroid img { height: 175px; }
+.polaroid .caption { font-size: 16px; }
+  .mini-photo { width: 28px; height: 28px; }
+  .final-text { font-size: 34px; }
+  .heart-scene { width: min(92vw, 420px); height: min(92vw, 420px); }
+}

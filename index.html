@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>С днём рождения</title>
+
+  <!-- Шрифты Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=Sacramento&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Фон с падающими сердечками на canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Кнопка звука (появляется после старта) -->
+  <button id="soundToggle" class="sound-toggle hidden" aria-label="Звук">🔊</button>
+
+  <!-- ============ ЭТАП 1: КОНВЕРТ ============ -->
+  <section class="stage active" id="stageEnvelope">
+    <div class="envelope-wrap">
+      <p class="envelope-hint">Тебе пришло особое послание </p>
+      <div class="envelope" id="envelope">
+        <div class="flap"></div>
+        <div class="body">
+          <span class="seal">❤</span>
+        </div>
+      </div>
+      <p class="envelope-cta">Нажми, чтобы открыть</p>
+    </div>
+  </section>
+
+  <!-- ============ ЭТАП 2: ПОЗДРАВЛЕНИЕ ============ -->
+  <section class="stage" id="stageMessage">
+    <div class="message-card">
+      <h1 class="script-title">С днём рождения!!!</h1>
+      <p class="typed" id="typedText"></p>
+      <button class="btn hidden" id="toGallery">Смотреть дальше -></button>
+    </div>
+  </section>
+
+  <!-- ============ ЭТАП 3: ГАЛЕРЕЯ ============ -->
+  <section class="stage" id="stageGallery">
+    <h2 class="script-title small">Ты прекрасна!</h2>
+   <div class="book" id="book"></div>
+<div class="book-dots" id="bookDots"></div>
+    
+  </section>
+
+  <!-- ============ ЭТАП 4: СЕРДЦЕ ИЗ ФОТО ============ -->
+  <section class="stage" id="stageHeart">
+    <div class="heart-scene" id="heartScene">
+  <!-- Сюда JS будет добавлять мини-фото по контуру сердца -->
+</div>
+<p class="final-text" id="finalText">Я тебя безумно люблю!</p>
+    <button class="btn ghost" id="replay">Посмотреть ещё раз ↺</button>
+  </section>
+
+  <!-- Музыка -->
+  <audio id="bgMusic" loop preload="auto">
+    <source src="music/song.mp3" type="audio/mpeg" />
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
